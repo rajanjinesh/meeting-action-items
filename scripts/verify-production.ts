@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 import { analyzeTranscript } from '../src/lib/analyzeTranscript';
-import { createPendingApproval, getPendingApproval, removePendingApproval } from '../src/lib/pendingStore';
 import { insertApprovedActionItems } from '../src/lib/supabase';
 
 async function verifyProductionFlow() {
@@ -103,7 +102,7 @@ async function verifyProductionFlow() {
     const res5 = await analyzeTranscript(case5Transcript);
     console.log('  Result:', JSON.stringify(res5));
     if (Array.isArray(res5) && res5.length === 0) {
-      console.log('  ✅ CASE 5 PASSED (Returned [] - No email sent, no DB record created)');
+      console.log('  ✅ CASE 5 PASSED (Returned [] - No DB record created)');
     } else {
       console.error('  ❌ CASE 5 FAILED:', res5);
       allPassed = false;
@@ -134,16 +133,9 @@ async function verifyProductionFlow() {
   // 8. Human Approval & Supabase Verification
   console.log('\n8. Human Review, Approval & Supabase Storage Verification:');
   try {
-    const email = 'production-verify@example.com';
     const pendingItems = [
       { action: 'Review Q3 Financial Roadmap', owner: 'Rajan', dueDate: 'End of Month' }
     ];
-
-    const token = createPendingApproval(email, pendingItems);
-    console.log('  Opaque Approval Token generated:', token);
-
-    const pending = getPendingApproval(token);
-    if (!pending) throw new Error('Pending approval retrieval failed.');
 
     // User edits item before approving
     const approvedEditedItems = [
@@ -152,7 +144,6 @@ async function verifyProductionFlow() {
 
     const insertedRows = await insertApprovedActionItems(approvedEditedItems);
     console.log('  Saved Record in Supabase:', JSON.stringify(insertedRows));
-    removePendingApproval(token);
 
     if (insertedRows.length === 1 && insertedRows[0].action.includes('APPROVE Q3 Financial Roadmap')) {
       console.log('  ✅ Human Approval & Supabase Storage PASSED');

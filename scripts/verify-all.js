@@ -1,6 +1,5 @@
 require('dotenv').config({ path: '.env.local' });
 const { GoogleGenAI } = require('@google/genai');
-const { Resend } = require('resend');
 const { createClient } = require('@supabase/supabase-js');
 
 async function runAllVerifications() {
@@ -17,7 +16,6 @@ async function runAllVerifications() {
     'NEXT_PUBLIC_SUPABASE_ANON_KEY',
     'SUPABASE_SERVICE_ROLE_KEY',
     'GEMINI_API_KEY',
-    'RESEND_API_KEY',
     'BRAINTRUST_API_KEY'
   ];
   const missing = requiredEnvs.filter(e => !process.env[e]);
@@ -66,30 +64,11 @@ async function runAllVerifications() {
     allPassed = false;
   }
 
-  // 4. Resend
-  console.log('\n4. Testing Resend API Authentication...');
-  try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    const { data, error } = await resend.apiKeys.list();
-    if (error && (error.name === 'restricted_api_key' || error.message?.includes('restricted to only send emails'))) {
-      console.log('✅ Resend API authenticated successfully (Key scoped for sending emails).');
-    } else if (error) {
-      console.error('❌ Resend API failed:', error);
-      allPassed = false;
-    } else {
-      console.log('✅ Resend API authenticated successfully.');
-    }
-  } catch (err) {
-    console.error('❌ Resend exception:', err.message);
-    allPassed = false;
-  }
-
-  // 5. Braintrust
-  console.log('\n5. Testing Braintrust API Connectivity & Project Access...');
+  // 4. Braintrust
+  console.log('\n4. Testing Braintrust API Connectivity & Project Access...');
   try {
     const apiKey = process.env.BRAINTRUST_API_KEY;
     const projectName = 'Meeting Action Items';
-    const datasetName = 'Meeting Action Items Eval';
     const res = await fetch(`https://api.braintrust.dev/v1/project?project_name=${encodeURIComponent(projectName)}`, {
       headers: { 'Authorization': `Bearer ${apiKey}` }
     });
@@ -115,7 +94,7 @@ async function runAllVerifications() {
   if (allPassed) {
     console.log('🎉 ALL SERVICE CONNECTIVITY CHECKS PASSED!');
   } else {
-    console.log('⚠️ SOME VERIFICATIONS FAILED. PLEASE FIX BEFORE PROCEEDING.');
+    console.error('⚠️ SOME VERIFICATIONS FAILED. PLEASE FIX BEFORE PROCEEDING.');
   }
   console.log('==================================================');
 }

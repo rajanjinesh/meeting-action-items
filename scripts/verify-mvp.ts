@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 import { analyzeTranscript } from '../src/lib/analyzeTranscript';
-import { createPendingApproval, getPendingApproval, removePendingApproval } from '../src/lib/pendingStore';
 import { insertApprovedActionItems } from '../src/lib/supabase';
 
 async function verifyMVP() {
@@ -115,33 +114,22 @@ async function verifyMVP() {
     process.env.GEMINI_API_KEY = origKey;
   }
 
-  // Test 7: Complete Approval Flow (Token -> Editing -> Supabase storage)
-  console.log('\nTest 7: Complete Approval Flow (Token -> Edit -> Supabase Save)...');
+  // Test 7: Complete Direct Flow (Extract -> Edit -> Supabase Save)
+  console.log('\nTest 7: Complete Direct Flow (Extract -> Edit -> Supabase Save)...');
   try {
-    const email = 'test@example.com';
-    const draftItems = [
-      { action: 'Draft proposal report', owner: 'Rajan', dueDate: 'Friday' }
-    ];
+    const text = "Rajan to draft proposal report by Friday.";
+    const draftItems = await analyzeTranscript(text);
+    console.log('  Extracted Items:', JSON.stringify(draftItems));
 
-    // 1. Token Creation
-    const token = createPendingApproval(email, draftItems);
-    console.log('  Generated Opaque Token:', token);
+    // User Edits Action Item (Simulated)
+    const editedItems = draftItems.map(item => ({
+      ...item,
+      action: 'Draft FINAL proposal report with client feedback'
+    }));
 
-    // 2. Pending Retrieval
-    const pending = getPendingApproval(token);
-    if (!pending || pending.actionItems[0].action !== 'Draft proposal report') {
-      throw new Error('Failed to retrieve pending approval by token.');
-    }
-
-    // 3. User Edits Action Item (Simulated)
-    const editedItems = [
-      { action: 'Draft FINAL proposal report with client feedback', owner: 'Rajan', dueDate: 'Next Monday' }
-    ];
-
-    // 4. Save Approved Action Items to Supabase
+    // Save Approved Action Items to Supabase
     const savedRecords = await insertApprovedActionItems(editedItems);
     console.log('  Saved to Supabase:', JSON.stringify(savedRecords));
-    removePendingApproval(token);
 
     if (savedRecords.length === 1 && savedRecords[0].action.includes('FINAL proposal report')) {
       console.log('  ✅ End-to-End Approval & Supabase Storage Passed!');

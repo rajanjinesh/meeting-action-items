@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeTranscript } from '@/lib/analyzeTranscript';
-import { createPendingApproval } from '@/lib/pendingStore';
-import { sendApprovalEmail } from '@/lib/resend';
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const email = (formData.get('email') as string || '').trim();
     const file = formData.get('file') as File | null;
-
-    if (!email) {
-      return NextResponse.json(
-        { success: false, error: 'Please enter a valid email address.' },
-        { status: 400 }
-      );
-    }
 
     if (!file) {
       return NextResponse.json(
@@ -54,7 +44,7 @@ export async function POST(req: NextRequest) {
       }, { status: 500 });
     }
 
-    // Rule 6: If no action items exist, return "No action items found."
+    // If no action items exist, return "No action items found."
     if (!actionItems || actionItems.length === 0) {
       return NextResponse.json({
         success: true,
@@ -63,29 +53,11 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Action items exist: generate approval token and send email
-    const token = createPendingApproval(email, actionItems);
-    
-    // Determine base URL from incoming request
-    const origin = req.nextUrl.origin || 'http://localhost:3000';
-    
-    const emailResult = await sendApprovalEmail({
-      to: email,
-      actionItems,
-      token,
-      baseUrl: origin
-    });
-
-    if (!emailResult.success) {
-      console.warn('Email sending failed, but approval token generated:', emailResult.error);
-    }
-
+    // Action items exist: return extracted action items directly for Review & Edit
     return NextResponse.json({
       success: true,
-      status: 'SENT_FOR_APPROVAL',
-      message: 'Approval requested',
-      token, // Also return token for testing/verification convenience
-      count: actionItems.length
+      status: 'ACTION_ITEMS_EXTRACTED',
+      actionItems
     });
   } catch (err: any) {
     console.error('Unhandled error in /api/analyze:', err);
