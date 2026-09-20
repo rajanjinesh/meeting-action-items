@@ -166,15 +166,14 @@ export default function HomePage() {
                   {statusMessage}
                 </p>
 
-                {/* Local Dev Direct Review Link */}
+                {/* Prominent Review Button */}
                 {approvalToken && status === 'sent_for_approval' && (
-                  <div className="mt-4 p-3 bg-blue-50 rounded-md text-left">
-                    <p className="text-xs text-blue-800 font-medium">Review Page Link:</p>
+                  <div className="mt-4">
                     <a
                       href={`/review?token=${approvalToken}`}
-                      className="text-xs text-blue-600 underline font-semibold break-all hover:text-blue-800"
+                      className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
-                      /review?token={approvalToken}
+                      Review
                     </a>
                   </div>
                 )}
