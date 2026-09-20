@@ -83,8 +83,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       status: 'SENT_FOR_APPROVAL',
-      message: 'Sent for approval',
-      token, // Also return token for local dev / testing convenience
+      message: 'Approval requested',
+      token, // Also return token for testing/verification convenience
       count: actionItems.length
     });
   } catch (err: any) {

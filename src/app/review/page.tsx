@@ -137,7 +137,7 @@ function ReviewContent() {
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 text-green-600 text-2xl font-bold">
             ✓
           </div>
-          <h2 className="mt-4 text-2xl font-bold text-gray-900">Action items approved and saved.</h2>
+          <h2 className="mt-4 text-2xl font-bold text-gray-900">Approved and saved</h2>
           <p className="mt-2 text-sm text-gray-600">
             Successfully stored {approvedCount} action item(s) in Supabase.
           </p>
