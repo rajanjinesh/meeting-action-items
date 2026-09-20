@@ -63,7 +63,7 @@ export async function sendApprovalEmail({
           </table>
 
           <div style="margin-top: 30px; text-align: center;">
-            <a href="${reviewUrl}" style="background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 24px; font-weight: bold; border-radius: 6px; display: inline-block;">Review & Approve</a>
+            <a href="${reviewUrl}" style="background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 28px; font-weight: bold; border-radius: 6px; display: inline-block; font-size: 15px;">Review</a>
           </div>
 
           <p style="margin-top: 30px; font-size: 12px; color: #6b7280; text-align: center;">
