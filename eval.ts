@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
-import { Eval } from 'braintrust';
+import { Eval, initDataset } from 'braintrust';
 import { analyzeTranscript, ActionItem } from './src/lib/analyzeTranscript';
 
 /**
@@ -60,51 +60,9 @@ export const actionItemQualityScorer = ({
 };
 
 Eval('Meeting Action Items', {
-  data: () => [
-    {
-      input: "Rajan, please send the revised project proposal to the client by Friday.",
-      expected: [
-        {
-          action: "Send the revised project proposal to the client",
-          owner: "Rajan",
-          dueDate: "Friday"
-        }
-      ],
-      metadata: { name: "Happy Path", id: "TC01" }
-    },
-    {
-      input: "We need to update the pricing page before the next sales meeting.",
-      expected: [
-        {
-          action: "Update the pricing page",
-          owner: "unspecified",
-          dueDate: "before the next sales meeting"
-        }
-      ],
-      metadata: { name: "Missing Owner", id: "TC02" }
-    },
-    {
-      input: "Rajan, please finish the dashboard. Priya, please review the API contract.",
-      expected: [
-        {
-          action: "Finish the dashboard",
-          owner: "Rajan",
-          dueDate: "unspecified"
-        },
-        {
-          action: "Review the API contract",
-          owner: "Priya",
-          dueDate: "unspecified"
-        }
-      ],
-      metadata: { name: "Multiple Actions", id: "TC03" }
-    },
-    {
-      input: "We discussed the dashboard and some possible improvements, but we don't have any specific next step yet.",
-      expected: [],
-      metadata: { name: "No Action", id: "TC04" }
-    }
-  ],
+  data: initDataset('Meeting Action Items', {
+    dataset: 'Meeting Action Items Eval'
+  }),
   task: async (input: string) => {
     return await analyzeTranscript(input);
   },
